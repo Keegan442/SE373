@@ -1,10 +1,16 @@
+var createError = require('http-errors');
 const express = require('express');
+var path = require('path');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const generateColorGrid = require('./color-generator');
 
 const app = express();
 const port = 3000;
+
+const whitelist = [
+  '*'
+];
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -23,7 +29,6 @@ app.post('/generate', (req, res) => {
   res.send(colors);
 });
 
-// Use only one app.listen call
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
