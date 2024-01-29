@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>title</title>
+</head>
+<body>
+    <h1>Color Grid Generator</h1>
+    <form action="/generate" method="post">
+      <label for="gridSize">Enter grid size (3, 4, 5, 10, or 20):</label>
+      <input type="number" name="gridSize" id="gridSize" required min="3" max="20">
+      <button type="submit">Generate Grid</button>
+    </form>
+    <div id="colorGrid" class="color-grid"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const colorGrid = document.getElementById('colorGrid');
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+
+          const gridSize = parseInt(form.elements.gridSize.value);
+
+          fetch(`/generate?gridSize=${gridSize}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(new FormData(form)),
+          })
+            .then(response => response.json())
+            .then(data => {
+              colorGrid.innerHTML = '';
+
+              const gridContainer = document.createElement('div');
+              gridContainer.className = 'grid-container';
+
+              for (let i = 0; i < data.length; i += gridSize) {
+                const row = document.createElement('div');
+                row.className = 'grid-row';
+
+                for (let j = 0; j < gridSize; j++) {
+                  const color = data[i + j];
+                  if (color) {
+                    const colorBox = document.createElement('div');
+                    colorBox.className = 'color-box';
+                    colorBox.style.backgroundColor = color.rgb;
+
+                    const colorBlack = document.createElement('div');
+                    colorBlack.className = 'color-black';
+                    colorBlack.textContent = `${rgbToHex(color.rgb)}`;
+
+                    const colorWhite = document.createElement('div');
+                    colorWhite.className = 'color-white';
+                    colorWhite.textContent = `${rgbToHex(color.rgb)}`;
+
+                    colorBox.appendChild(colorBlack);
+                    colorBox.appendChild(colorWhite);
+                    row.appendChild(colorBox);
+                  }
+                }
+
+                gridContainer.appendChild(row);
+              }
+
+              colorGrid.appendChild(gridContainer);
+            });
+        });
+
+        function rgbToHex(rgb) {
+          const hex = rgb.match(/\d+/g)
+            .map(value => (+value).toString(16).padStart(2, '0'))
+            .join('');
+          return `#${hex}`;
+    
+        }
+      });
+    </script>
+    <style>
+      .grid-container {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid-row {
+        display: flex;
+        gap: 16px;
+      }
+
+      .color-box {
+        flex: 1;
+        padding: 16px;
+        text-align: center;
+        width:auto;
+        height: 200px;
+      }
+
+      .color-black {
+        color: black;
+      }
+
+      .color-white {
+        color: white;
+      }
+    </style>
+</body>
+</html>
